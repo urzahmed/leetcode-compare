@@ -11,7 +11,7 @@ A modern web application built with Next.js and TypeScript that helps users comp
 - Type-safe development with TypeScript
 - Form handling with React Hook Form
 - Data visualization capabilities with Recharts
-- Toast notifications with Sonner
+- Toast notifications with Sonner 
 - Beautiful animations with Tailwind CSS
 
 ## Tech Stack

@@ -6,7 +6,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold text-center mb-2">LeetCode Profile Comparator</h1>
         <p className="text-center text-muted-foreground mb-8">
-          Compare two LeetCode profiles and visualize the differences
+          Compare two LeetCode profiles and analyze their strengths and weaknesses in different topics and problems.
         </p>
         <LeetCodeComparator />
       </div>
