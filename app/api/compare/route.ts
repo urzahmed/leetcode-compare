@@ -21,6 +21,11 @@ async function fetchUserProfile(username: string) {
             count
             submissions
           }
+          totalSubmissionNum {
+            difficulty
+            count
+            submissions
+          }
         }
       }
       userContestRanking(username: $username) {
@@ -240,12 +245,24 @@ function processUserData(profileData: any, tagData: any, totalProblems: any) {
 
   // Extract submission stats
   const submitStats = user.submitStats.acSubmissionNum.reduce((acc: any, item: any) => {
-    acc[item.difficulty.toLowerCase()] = item.count
+    acc[item.difficulty.toLowerCase()] = {
+      count: item.count,
+      submissions: item.submissions
+    }
     return acc
   }, {})
 
-  // Calculate total solved problems
-  const totalSolved = submitStats.easy + submitStats.medium + submitStats.hard
+  const totalSubmitStats = user.submitStats.totalSubmissionNum.reduce((acc: any, item: any) => {
+    acc[item.difficulty.toLowerCase()] = {
+      count: item.count,
+      submissions: item.submissions
+    }
+    return acc
+  }, {})
+
+  // Calculate total solved problems and total submissions
+  const totalSolved = submitStats.easy.count + submitStats.medium.count + submitStats.hard.count
+  const totalAttempts = totalSubmitStats.easy.submissions + totalSubmitStats.medium.submissions + totalSubmitStats.hard.submissions
 
   // Extract member since date (approximation based on first contest or current date)
   const memberSince =
@@ -313,16 +330,15 @@ function processUserData(profileData: any, tagData: any, totalProblems: any) {
     memberSince,
     premium: false, // LeetCode API doesn't expose premium status
     problemsSolved: {
-      easy: submitStats.easy || 0,
-      medium: submitStats.medium || 0,
-      hard: submitStats.hard || 0,
+      easy: submitStats.easy.count || 0,
+      medium: submitStats.medium.count || 0,
+      hard: submitStats.hard.count || 0,
     },
     totalProblems: {
       easy: totalProblems.easy,
       medium: totalProblems.medium,
       hard: totalProblems.hard,
     },
-    acceptanceRate: Math.round((totalSolved / (totalSolved + 100)) * 100), // Approximation
     globalRanking: user.profile.ranking || 999999,
     streak: 0, // LeetCode API doesn't expose streak
     contestRating: contestData?.rating || 1500,

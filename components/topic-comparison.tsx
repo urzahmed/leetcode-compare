@@ -1,52 +1,56 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts"
+import { Progress } from "@/components/ui/progress"
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from "recharts"
 import { Badge } from "@/components/ui/badge"
 
-export function TopicComparison({ data }: { data: any }) {
+interface TopicStrengths {
+  arrays: number
+  strings: number
+  dp: number
+  trees: number
+  graphs: number
+  sorting: number
+}
+
+interface UserData {
+  username: string
+  topicStrengths: TopicStrengths
+}
+
+interface TopicComparisonProps {
+  data: {
+    user1: UserData
+    user2: UserData
+  }
+}
+
+export function TopicComparison({ data }: TopicComparisonProps) {
   const { user1, user2 } = data
 
-  // Prepare data for the radar chart
-  const radarData = [
-    {
-      subject: "Arrays",
-      [user1.username]: user1.topicStrengths.arrays,
-      [user2.username]: user2.topicStrengths.arrays,
-      fullMark: 100,
-    },
-    {
-      subject: "Strings",
-      [user1.username]: user1.topicStrengths.strings,
-      [user2.username]: user2.topicStrengths.strings,
-      fullMark: 100,
-    },
-    {
-      subject: "DP",
-      [user1.username]: user1.topicStrengths.dp,
-      [user2.username]: user2.topicStrengths.dp,
-      fullMark: 100,
-    },
-    {
-      subject: "Trees",
-      [user1.username]: user1.topicStrengths.trees,
-      [user2.username]: user2.topicStrengths.trees,
-      fullMark: 100,
-    },
-    {
-      subject: "Graphs",
-      [user1.username]: user1.topicStrengths.graphs,
-      [user2.username]: user2.topicStrengths.graphs,
-      fullMark: 100,
-    },
-    {
-      subject: "Sorting",
-      [user1.username]: user1.topicStrengths.sorting,
-      [user2.username]: user2.topicStrengths.sorting,
-      fullMark: 100,
-    },
-  ]
+  // Prepare data for radar chart
+  const chartData = Object.keys(user1.topicStrengths).map((topic) => ({
+    topic: topic.charAt(0).toUpperCase() + topic.slice(1),
+    [user1.username]: user1.topicStrengths[topic as keyof TopicStrengths],
+    [user2.username]: user2.topicStrengths[topic as keyof TopicStrengths],
+  }))
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background border rounded-lg p-3 shadow-lg">
+          <p className="font-medium">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} style={{ color: entry.color }}>
+              {entry.name}: {entry.value.toFixed(1)}%
+            </p>
+          ))}
+        </div>
+      )
+    }
+    return null
+  }
 
   // Calculate strengths and weaknesses
   const getTopStrengths = (user) => {
@@ -77,43 +81,69 @@ export function TopicComparison({ data }: { data: any }) {
       <Card className="md:col-span-2">
         <CardHeader>
           <CardTitle>Topic Strength Comparison</CardTitle>
-          <CardDescription>Compare proficiency across different problem topics</CardDescription>
+          <CardDescription>Compare problem-solving strengths across different topics</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer
-            config={{
-              [user1.username]: {
-                label: user1.username,
-                color: "hsl(var(--chart-1))",
-              },
-              [user2.username]: {
-                label: user2.username,
-                color: "hsl(var(--chart-2))",
-              },
-            }}
-            className="h-[400px]"
-          >
-            <RadarChart outerRadius={150} data={radarData}>
-              <PolarGrid />
-              <PolarAngleAxis dataKey="subject" />
-              <PolarRadiusAxis angle={30} domain={[0, 100]} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Radar
-                name={user1.username}
-                dataKey={user1.username}
-                stroke="var(--color-user1)"
-                fill="var(--color-user1)"
-                fillOpacity={0.3}
-              />
-              <Radar
-                name={user2.username}
-                dataKey={user2.username}
-                stroke="var(--color-user2)"
-                fill="var(--color-user2)"
-                fillOpacity={0.3}
-              />
-            </RadarChart>
-          </ChartContainer>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={chartData} margin={{ top: 20, right: 30, left: 30, bottom: 20 }}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="topic" />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                <Tooltip content={<CustomTooltip />} />
+                <Radar
+                  name={user1.username}
+                  dataKey={user1.username}
+                  stroke="hsl(var(--chart-1))"
+                  fill="hsl(var(--chart-1))"
+                  fillOpacity={0.3}
+                />
+                <Radar
+                  name={user2.username}
+                  dataKey={user2.username}
+                  stroke="hsl(var(--chart-2))"
+                  fill="hsl(var(--chart-2))"
+                  fillOpacity={0.3}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{user1.username}'s Topic Strengths</CardTitle>
+          <CardDescription>Problem-solving proficiency by topic</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {Object.entries(user1.topicStrengths).map(([topic, strength]) => (
+            <div key={topic} className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="capitalize">{topic}</span>
+                <span className="font-medium">{strength.toFixed(1)}%</span>
+              </div>
+              <Progress value={strength} className="h-2" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{user2.username}'s Topic Strengths</CardTitle>
+          <CardDescription>Problem-solving proficiency by topic</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {Object.entries(user2.topicStrengths).map(([topic, strength]) => (
+            <div key={topic} className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="capitalize">{topic}</span>
+                <span className="font-medium">{strength.toFixed(1)}%</span>
+              </div>
+              <Progress value={strength} className="h-2" />
+            </div>
+          ))}
         </CardContent>
       </Card>
 

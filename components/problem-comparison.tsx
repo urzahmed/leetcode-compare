@@ -1,8 +1,8 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts"
+import { Progress } from "@/components/ui/progress"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
 export function ProblemComparison({ data }: { data: any }) {
   const { user1, user2 } = data
@@ -48,6 +48,22 @@ export function ProblemComparison({ data }: { data: any }) {
     },
   ]
 
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background border rounded-lg p-3 shadow-lg">
+          <p className="font-medium">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} style={{ color: entry.color }}>
+              {entry.name}: {entry.value.toFixed(1)}%
+            </p>
+          ))}
+        </div>
+      )
+    }
+    return null
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card className="md:col-span-2">
@@ -56,28 +72,18 @@ export function ProblemComparison({ data }: { data: any }) {
           <CardDescription>Compare the number of problems solved by difficulty level</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer
-            config={{
-              [user1.username]: {
-                label: user1.username,
-                color: "hsl(var(--chart-1))",
-              },
-              [user2.username]: {
-                label: user2.username,
-                color: "hsl(var(--chart-2))",
-              },
-            }}
-            className="h-[300px]"
-          >
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="category" />
-              <YAxis />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey={user1.username} fill="var(--color-user1)" radius={4} />
-              <Bar dataKey={user2.username} fill="var(--color-user2)" radius={4} />
-            </BarChart>
-          </ChartContainer>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="category" />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey={user1.username} fill="hsl(var(--chart-1))" radius={4} />
+                <Bar dataKey={user2.username} fill="hsl(var(--chart-2))" radius={4} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 
@@ -87,28 +93,18 @@ export function ProblemComparison({ data }: { data: any }) {
           <CardDescription>Percentage of problems solved by difficulty</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer
-            config={{
-              [user1.username]: {
-                label: user1.username,
-                color: "hsl(var(--chart-1))",
-              },
-              [user2.username]: {
-                label: user2.username,
-                color: "hsl(var(--chart-2))",
-              },
-            }}
-            className="h-[300px]"
-          >
-            <BarChart data={percentageData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="category" />
-              <YAxis unit="%" />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey={user1.username} fill="var(--color-user1)" radius={4} />
-              <Bar dataKey={user2.username} fill="var(--color-user2)" radius={4} />
-            </BarChart>
-          </ChartContainer>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={percentageData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="category" />
+                <YAxis unit="%" />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey={user1.username} fill="hsl(var(--chart-1))" radius={4} />
+                <Bar dataKey={user2.username} fill="hsl(var(--chart-2))" radius={4} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 
@@ -142,31 +138,13 @@ export function ProblemComparison({ data }: { data: any }) {
             </div>
             <div className="flex justify-between text-xs mt-1">
               <span className="text-green-500">
-                Easy:{" "}
-                {Math.round(
-                  (user1.problemsSolved.easy /
-                    (user1.problemsSolved.easy + user1.problemsSolved.medium + user1.problemsSolved.hard)) *
-                    100,
-                )}
-                %
+                Easy: {Math.round((user1.problemsSolved.easy / (user1.problemsSolved.easy + user1.problemsSolved.medium + user1.problemsSolved.hard)) * 100)}%
               </span>
               <span className="text-yellow-500">
-                Medium:{" "}
-                {Math.round(
-                  (user1.problemsSolved.medium /
-                    (user1.problemsSolved.easy + user1.problemsSolved.medium + user1.problemsSolved.hard)) *
-                    100,
-                )}
-                %
+                Medium: {Math.round((user1.problemsSolved.medium / (user1.problemsSolved.easy + user1.problemsSolved.medium + user1.problemsSolved.hard)) * 100)}%
               </span>
               <span className="text-red-500">
-                Hard:{" "}
-                {Math.round(
-                  (user1.problemsSolved.hard /
-                    (user1.problemsSolved.easy + user1.problemsSolved.medium + user1.problemsSolved.hard)) *
-                    100,
-                )}
-                %
+                Hard: {Math.round((user1.problemsSolved.hard / (user1.problemsSolved.easy + user1.problemsSolved.medium + user1.problemsSolved.hard)) * 100)}%
               </span>
             </div>
           </div>
@@ -195,31 +173,13 @@ export function ProblemComparison({ data }: { data: any }) {
             </div>
             <div className="flex justify-between text-xs mt-1">
               <span className="text-green-500">
-                Easy:{" "}
-                {Math.round(
-                  (user2.problemsSolved.easy /
-                    (user2.problemsSolved.easy + user2.problemsSolved.medium + user2.problemsSolved.hard)) *
-                    100,
-                )}
-                %
+                Easy: {Math.round((user2.problemsSolved.easy / (user2.problemsSolved.easy + user2.problemsSolved.medium + user2.problemsSolved.hard)) * 100)}%
               </span>
               <span className="text-yellow-500">
-                Medium:{" "}
-                {Math.round(
-                  (user2.problemsSolved.medium /
-                    (user2.problemsSolved.easy + user2.problemsSolved.medium + user2.problemsSolved.hard)) *
-                    100,
-                )}
-                %
+                Medium: {Math.round((user2.problemsSolved.medium / (user2.problemsSolved.easy + user2.problemsSolved.medium + user2.problemsSolved.hard)) * 100)}%
               </span>
               <span className="text-red-500">
-                Hard:{" "}
-                {Math.round(
-                  (user2.problemsSolved.hard /
-                    (user2.problemsSolved.easy + user2.problemsSolved.medium + user2.problemsSolved.hard)) *
-                    100,
-                )}
-                %
+                Hard: {Math.round((user2.problemsSolved.hard / (user2.problemsSolved.easy + user2.problemsSolved.medium + user2.problemsSolved.hard)) * 100)}%
               </span>
             </div>
           </div>

@@ -131,18 +131,12 @@ function ProfileCard({ user }: { user: any }) {
         <CardDescription>Member since {user.memberSince}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex justify-between">
-          <div className="text-center">
-            <div className="text-3xl font-bold">{totalProblems}</div>
-            <div className="text-xs text-muted-foreground">Problems Solved</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold">{user.acceptanceRate}%</div>
-            <div className="text-xs text-muted-foreground">Acceptance Rate</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold">{user.streak}</div>
-            <div className="text-xs text-muted-foreground">Day Streak</div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="text-sm text-muted-foreground">Problems Solved</div>
+            <div className="text-2xl font-bold">
+              {user.username}: {user.problemsSolved.easy + user.problemsSolved.medium + user.problemsSolved.hard}
+            </div>
           </div>
         </div>
 
